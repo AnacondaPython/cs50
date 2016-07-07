@@ -1,35 +1,37 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <cs50.h>
 
 int main (void)
 {
-    int height = 0;
-    //int row = 0;
-    printf("Input height of the pyramid ");
-    scanf("%d", &height);
-    if (height < 0 || height > 23)
-    { 
-    printf("Invalid height, less than 23, or positive");
-    //return 0
-    //http://i.imgur.com/VnqI7Iw.png
-    exit (0);
-    } 
-    else
+    int n;
+    
+    
+    //Got the input correctly
+    do
     {
-        int y;
-        int z;
-        for (y=0; y < height; y++) 
-        //skip y < height for now
-        //printf("#");
-        {
-        //printf("#" * y)
-        for (z=0; z < y; z++){
-        printf("#");
-        }
-        printf("##\n");
-        }
-    }
-
+        printf("Height: ");
+        n = GetInt();
         
     }
+    while (n<0 || n>23);
+   
+   //Now to do the actual printout
+   //0 row = 2 hashes, 1 row = 3 hashes, etc.
+   //must be using all spaces first
+   for (int i=0; i<n; i++)
+   //N = number of rows, where n=0 is first row with 2 hashes
+   { 
+       
+       //j denotes spaces
+       for (int j=n-i-1; j>0; j--){
+       printf(" ");  //print spaces &n-i-2)
+       } 
+       
+       //k denotes hashes
+       for (int k=-2; k<i; k++){
+       printf("#");           //print hashes &i+2)
+       }
+       
+       printf("\n")   ;        //print newline
+   }
+}
