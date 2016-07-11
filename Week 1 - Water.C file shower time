@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <cs50.h>
+
+int main (void)
+{
+    int x = 0;
+    //scanf("How many %d minutes ya want of shower time?", x);
+    printf("Shower time in minutes:");
+    scanf("%d", &x);
+    
+    printf("Ya spent %d bottles of water ya cunt", x*12) ;
+}
