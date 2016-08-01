@@ -42,13 +42,16 @@ int main(int argc, string argv[1]){
         int a = strlen(cipherText)%strlen(plainText);
         int b = strlen(cipherText)/strlen(plainText);
         newCipherText = () */
-        
+            int counter = 0;    //for loop array, needs to be outside scope
         for (int j=0; j<strlen(plainText); j++){ //loop the entire array
+        
         if (!isspace(plainText[j])){
-            newCipherText[j] = (cipherText[j%(strlen(cipherText))]); //this should work, but we need to include spaces somehow.
+            newCipherText[j] = (cipherText[(j-counter)%(strlen(cipherText))]); //modulo function, its to get letters to loop in a specific position under cipherText
         }
         if (isspace(plainText[j])){
             newCipherText[j] = ' ';
+            counter++;
+    
         }
         
     }
