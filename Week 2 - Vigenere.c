@@ -1,168 +1,52 @@
-//Caesars Cipher
+//Vigenere
 #include <stdio.h>
 #include <stdlib.h>
 #include <cs50.h>
 #include <string.h>
 #include <ctype.h>
 
-char lowerCaesar (char a, int r);
-char upperCaesar (char a, int r);
-char keyArrayVignere (char a);
 
-//1. Get the key
-//2. Get the plaintext
-//3. Encipher
-//4. Printciphertext
+/*---------------------------------------
+	1. Get the Key
+		a. 2nd command line argument : argv[1]
+		b. Must be alphabetical : isalpha
+	2. Get the plain text
+	    a. Create the new text like "I_Like_You" from cipher key "Panda" as "P_anda_Pan"
+	3. Encipher
+    4. Print ciphertext
+----------------------------------------*/
 
-//For step#3, we need to
-//A. read each character in the array (string)
-//B. read whether the letter is an upper or lowercase character
-//C. send that character and/or equivalent text value to a cipher function
-//D. return the correct letter into the new string CA to be printed out,
-//in the correct order as well (therefore we need 2 strings)
+//okay fuck this I'm going to rewrite the program from the ground up again, using caesar.c code when needed 
 
-//for step c, we need to: 
-//AA. make a function (pass char, pass int key), it returns a char
-//one for upper and one for lower, as they have different ASCII values
-//BB. Toss those values into ASCII numbers
-//CC. subtract those ascii numbers and normalize them to 0
-//DD. use Caesar Ciphers math formula with modulus
-//EE. Somehow convert that ASCII number into a letter (they didn't really say)
-//EE. return the value of the new character (not int)
-
-
-//Step 1: Get the key (modify this code)
-int main (int argc, string argv[1]){ 
-    if (argc != 2) 
-    {
-        return 1;
+int main(int argc, string argv[1]){
+    if (argc!=2){
+        return 1; //because you need two arguments. Argv is always a array of strings. argv[1] is just a string
     }
-    
-    string vkey = argv[1]; //vkey = vignerekey
-    int nkey[strlen(vkey)];  
-    //nkey = dicephered numberkey array from vkey
-    
-    if (strcmp(vkey)==0){
-    printf("Keyword must only contain letters A-Z and a-z");
-        return 1;
-    }
-    
-//Step 1.1: Convert the plain text into ASCII values that can be read: We will use the caesars Cipher later again, this time passing some numbers
-//copy pasted same code in caesar Cipher (don't use the same J though, global variable?)
- 
-   for (int w=0; w<strlen(vkey); w++){
-            nkey[w] = keyArrayVignere(vkey[w]);
-    }
-    
-    printf("%d testing if conversion worked", nkey);
-//--------------Function goes  here Temporarily . We need to convert this to an array of numbers like [1,2,3,6,7] corresponding to ASCII value equivalents like "bacon" = [2,1,3,15?,10?]
-char keyArrayVignere (char a){
-    int letter = a; 
-    if (isupper(a)) {
-        letter = letter - 65;
-        a = letter;
-        return letter; //we are returning a number
-    }
-    if (islower(a)){
-        letter = letter - 97;
-        a = letter;
-        return letter; //we are returning a number
-    }
-}
-}
-
-
-
-
-//
-
-    
-//Step 2: Get plaintext
-    
-   /* string s = GetString();
-   string va = s; // va means vignereArray, gives equal values here
-    
-//Step 2.1: Convert the text into plain text
-    
-    
-//Step 3: Encipher , read each value in the array
-    for (int j=0; j<strlen(s); j++){
-        if (isupper(s[j]))
-        {
-            //pass to the function that will convert upper letters
-            va[j] = upperCaesar(s[j],k);
+    string cipherText = argv[1];
+//1. Get the Key, we are now going to run a check on each letter . See check : http://i.imgur.com/ly9Hirn.png
+    for (int i=0; i<strlen(cipherText); i++){
+        if (!isalpha(cipherText[i])){  // ! is used in C to denote not true boolean
+            printf("Keyword must only contain letters A-Z and a-z");
+            return -1;
         }
-        if (islower(s[j]))
-        {
-            //pass to the function that will convert lower letters
-            va[j] = lowerCaesar(s[j],k);
-        }
+
+//everything works thus far:
+
+//2. Get the plaintext 
+    string plainText = GetString();
+    string newCipherText = plainText;
+    printf("%s, CipherText did it work? 1", newCipherText);
+    if (strlen(cipherText)<strlen(plainText)){
+        /*make the newest array
+        int a = strlen(cipherText)%strlen(plainText);
+        int b = strlen(cipherText)/strlen(plainText);
+        newCipherText = () */
         
+        for (int j=0; j<strlen(plainText); j++){ //loop the entire array
+            newCipherText[j] = (cipherText[j%(strlen(cipherText))]); //this should work
+        }
+        printf("%s, CipherText did it work? 2", newCipherText);
     }
     
-//Step 4: Print cipher
-    printf("%s", ca); // is the cipher text
 }
-
-//Step AA: returning a lowercase letter under CaesarsCipher
-//97 = a, 122 = z. 
-char lowerCaesar (char a, int r){
-    int letter = a; //say we get y, which is 121
-    letter = letter - 97; // its reduced to now 24, which is y
-    letter = (letter+r)%26; // say the key was 5, 24+5 = 29, remainder is 3.
-    //since a =0, d = 3. Which si right
-    letter = letter +97; // goes back to the original ASCII value
-    a = letter;
-    return a;
 }
-
-
-//Step AA v2: returning a uppercase letter under CaesarsCipher
-//65 = A, 90 =Z  
-//..............................
-//char upperCaesar (char A, int r) //it shouldn't matter if A is the same, its not global
-//(will check) after I do lowercase check
-
-char upperCaesar (char a, int r){
-    int letter = a; //say we get y, which is 89
-    letter = letter - 65; // its reduced to now 24, which is y
-    letter = (letter+r)%26; // say the key was 5, 24+5 = 29, remainder is 3.
-    //since a =0, d = 3. Which si right
-    letter = letter +65; // goes back to the original ASCII value
-    a = letter;
-    return a;
-}
-
-
-
-
-
-
-*/
-
-//Notes not going to be used:
-//--------------------------
-
-/* Pseudocode
-1. Grab string array
-1A. Ask for a secret key K, must be a number. Return 1 if not 
-working under main
-1B. We can make a string k =argv1
-2. Make a second string array for output later
-3. Use a FOR LOOP to read the initial array
-
-*/
-//-------------------------------
-
-//we're getting characters since we're reading off elements in the string, aka characters
-//we then convert the characters into ASCII numbers?
-//Then, after the numbers are converted, do the CaesarsCipher
-
-//int caesarCipher (char input) //strings are array of characters, and array of strings is argv under command line
-//{
-//    input = 
-//}
-
-//------------
-//Proceed to use the key onto the string now. Need a for loop. We will need another array to store the new values onto
-    //ci = (pi + k) % 26 formula must go in there somewhere
