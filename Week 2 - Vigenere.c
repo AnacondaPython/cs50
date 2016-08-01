@@ -34,8 +34,9 @@ int main(int argc, string argv[1]){
 
 //2. Get the plaintext 
     string plainText = GetString();
-    string newCipherText = plainText;
-    printf("%s, CipherText did it work? 1", newCipherText);
+    string newCipherText = plainText; // sets all values to null / spaces for the same length as the string entered
+
+    printf("%s, intiial cipher text \n", newCipherText);
     if (strlen(cipherText)<strlen(plainText)){
         /*make the newest array
         int a = strlen(cipherText)%strlen(plainText);
@@ -43,10 +44,15 @@ int main(int argc, string argv[1]){
         newCipherText = () */
         
         for (int j=0; j<strlen(plainText); j++){ //loop the entire array
-            newCipherText[j] = (cipherText[j%(strlen(cipherText))]); //this should work
+        if (!isspace(plainText[j])){
+            newCipherText[j] = (cipherText[j%(strlen(cipherText))]); //this should work, but we need to include spaces somehow.
         }
-        printf("%s, CipherText did it work? 2", newCipherText);
+        if (isspace(plainText[j])){
+            newCipherText[j] = ' ';
+        }
+        
     }
-    
+printf("%s, CipherText did it work?", newCipherText);    
+}
 }
 }
