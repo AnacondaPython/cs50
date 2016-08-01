@@ -30,7 +30,7 @@ char upperCaesar (char a, int r);
 //EE. return the value of the new character (not int)
 
 
-//Step 1: Get the key
+//Step 1: Get the key g
 int main (int argc, string argv[1]){ 
     if (argc != 2)
     {
