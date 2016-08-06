@@ -5,6 +5,10 @@
 #include <string.h>
 #include <ctype.h>
 
+char vigenereConversion(char asciiChar, int varKey);
+
+int arrayConversion (char asciiChar);
+
 
 /*---------------------------------------
 	1. Get the Key
@@ -15,8 +19,6 @@
 	3. Encipher
     4. Print ciphertext
 ----------------------------------------*/
-
-//okay fuck this I'm going to rewrite the program from the ground up again, using caesar.c code when needed 
 
 int main(int argc, string argv[1]){
     if (argc!=2){
@@ -30,18 +32,13 @@ int main(int argc, string argv[1]){
             return -1;
         }
 
-//everything works thus far:
-
 //2. Get the plaintext 
     string plainText = GetString();
     string newCipherText = plainText; // sets all values to null / spaces for the same length as the string entered
 
     printf("%s, intiial cipher text \n", newCipherText);
     if (strlen(cipherText)<strlen(plainText)){
-        /*make the newest array
-        int a = strlen(cipherText)%strlen(plainText);
-        int b = strlen(cipherText)/strlen(plainText);
-        newCipherText = () */
+      
             int counter = 0;    //for loop array, needs to be outside scope
         for (int j=0; j<strlen(plainText); j++){ //loop the entire array
         
@@ -56,6 +53,73 @@ int main(int argc, string argv[1]){
         
     }
 printf("%s, CipherText did it work?", newCipherText);    
+
+
+
+
+
+//3. Encipher (need to convert that encipher text into an array of values)
+    int cipherArray[20] = {0};
+    for (int k=0; k<strlen(newCipherText); k++){
+        cipherArray[k] =  arrayConversion(newCipherText[k]);
+    }
+    //printf("%d, Did CipherText to numbers work?", cipherArray);
+
+//3.5 now I have to convert the other array into a number. We have an array of values now , toss that into a new function
+
+    string finalCipherText = newCipherText;
+    for (int m =0; m<strlen(newCipherText); m++){
+        finalCipherText[m] = vigenereConversion(plainText[m], cipherArray[m]);
+    }
+    
+    printf("%s, did ciphertext work", finalCipherText);
+
 }
 }
+
+
+
+}
+
+//Functions below
+
+char vigenereConversion(char asciiChar, int varKey){
+
+    int letter = asciiChar;
+    
+    if(isupper(asciiChar)){
+        letter = letter - 65; 
+    letter = (letter+varKey)%26; 
+    letter = letter +65; 
+    asciiChar = letter;
+    return asciiChar;
+    }
+    
+    if(islower(asciiChar)){
+        letter = letter - 97; 
+    letter = (letter+varKey)%26; 
+    letter = letter +97; 
+    asciiChar = letter;
+    return asciiChar;
+    }
+    
+}
+
+
+
+
+int arrayConversion (char asciiChar){
+    int letter = asciiChar;
+    
+    if(isupper(asciiChar)){
+        letter = letter - 65;
+        return letter;
+    }
+    
+    if(islower(asciiChar)){
+        letter = letter - 97;
+        return letter;
+    }
+    
+    
 }
