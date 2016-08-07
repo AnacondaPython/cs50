@@ -95,12 +95,17 @@ char vigenereConversion(char asciiChar, int varKey){
     return asciiChar;
     }
     
-    if(islower(asciiChar)){
+    else if(islower(asciiChar)){
         letter = letter - 97; 
     letter = (letter+varKey)%26; 
     letter = letter +97; 
     asciiChar = letter;
     return asciiChar;
+    }
+    
+    else {
+        printf("error");
+        return asciiChar;
     }
     
 }
@@ -116,10 +121,13 @@ int arrayConversion (char asciiChar){
         return letter;
     }
     
-    if(islower(asciiChar)){
+    else if(islower(asciiChar)){
         letter = letter - 97;
         return letter;
     }
-    
+    else {
+        printf("print error");
+        return letter;
+    }
     
 }
