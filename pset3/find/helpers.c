@@ -15,8 +15,6 @@
 
 #include "stdlib.h"
 
-// ADDED ONE CHANGE TO SEE IF FILE CHANGED
-
 /**
  * Returns true if value is in array of n values, else false.
  */
@@ -38,21 +36,20 @@
 */
 
 //assumed sorted
+
 bool Binarysearch(int key, int array[], int n){
 
-    int end = n-1; //indexing for maximum, its one short
-    int start = 0; //indexing for minimum
-    
-    //deadswitch on recursive 
-    while(start<end){ //ends program, since you have to look left
-    
+    int end = n-1; 
+    int start = 0; 
+   
+    while(start<=end){ 
+    int midpoint = (((end+start)/2));
 
         if (array[midpoint] == key){
             return true;
         }
         else if (key > array[midpoint]){
             start = midpoint+1;
-            //end = startpoint -1;
         }
             
         else if (key < array[midpoint]){
@@ -62,10 +59,10 @@ bool Binarysearch(int key, int array[], int n){
             break;
         }
 }
-
-}
 return false;
 }
+
+
 /**
  * Sorts array of n values.
  */
