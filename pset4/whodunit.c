@@ -78,8 +78,17 @@ int main(int argc, char* argv[])
             // temporary storage
             RGBTRIPLE triple;
 
-            // read RGB triple from infile
+            // read RGB triple from infile, blue green red in order
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+            
+            
+            //make some colors red
+            if (triple.rgbtGreen == 0x00){
+                triple.rgbtGreen = 0xFF;
+            }
+            if (triple.rgbtBlue == 0x00){
+                triple.rgbtBlue = 0xFF;
+            }
 
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
