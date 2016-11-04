@@ -15,15 +15,22 @@
 int main(int argc, char* argv[])
 {
     // ensure proper usage
-    if (argc != 3)
+    if (argc != 4)
     {
-        printf("Usage: ./copy infile outfile\n");
+        printf("Usage: ./copy factor infile outfile\n");
         return 1;
     }
 
     // remember filenames
-    char* infile = argv[1];
-    char* outfile = argv[2];
+    int* factor = atoi(argv[1]);
+    char* infile = argv[2];
+    char* outfile = argv[3];
+    
+    if (factor <=0)
+    {
+        printf("Positive integer only for factor")
+        return 6;
+    }
 
     // open input file 
     FILE* inptr = fopen(infile, "r");
@@ -59,37 +66,64 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Unsupported file format.\n");
         return 4;
     }
+    
+    //-----------
+    
+    //New File for output
+    BITMAPFILEHEADER new_bf;
+    BITMAPINFOHEADER new_bi;
+
 
     // write outfile's BITMAPFILEHEADER
-    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
+    fwrite(&new_bf, sizeof(BITMAPFILEHEADER), 1, outptr);
 
     // write outfile's BITMAPINFOHEADER
-    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
+    fwrite(&new_bi, sizeof(BITMAPINFOHEADER), 1, outptr);
+    
+    //Change height and width
+    new_bi.biWidth = bi.biWidth*factor;
+    new_bi.biHeight = bi.biHeight*factor;
+    
+    //update BF values
+    new_bf.bfSize =  
+    
+    int new_padding = (4 - (new_bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4; //if biWidth =3 , then 1 padding 
 
     // determine padding for scanlines
-    int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    //int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
     // iterate over infile's scanlines
-    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
+    for (int i = 0, old_biHeight = abs(bi.biHeight); i < old_biHeight; i++)
     {
         // iterate over pixels in scanline
         for (int j = 0; j < bi.biWidth; j++)
         {
             // temporary storage
             RGBTRIPLE triple;
+            RGBTRIPLE new_triple;
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
             
+            //Convert triple to new_triple http://i.imgur.com/7GRtWys.png
+            //arrays indexed at 0
+            for (int l = 0; l<3; l++)
+            {
+                for (int m = 0; m<factor; m++)
+                {
+                    new_triple[l+m] = triple[l+m];
+                }
+            }
+            
             // write RGB triple to outfile
-            fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+            fwrite(&new_triple, factor*sizeof(RGBTRIPLE), 1, outptr); 
         }
 
         // skip over padding, if any
-        fseek(inptr, padding, SEEK_CUR);
+        fseek(inptr, new_padding, SEEK_CUR);
 
         // then add it back (to demonstrate how)
-        for (int k = 0; k < padding; k++)
+        for (int k = 0; k < new_padding; k++)
         {
             fputc(0x00, outptr);
         }
