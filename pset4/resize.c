@@ -72,93 +72,70 @@ int main(int argc, char* argv[])
     //----------------new files -------------
     
     
-    //Initialize values for things like biplanes, bftype, etc
+    //Initialize the new_bf
     BITMAPFILEHEADER new_bf;
     BITMAPINFOHEADER new_bi;
     new_bf = bf;
     new_bi = bi;
 
-
-    
-    //Change header values to scale with factor
-    //http://i.imgur.com/t4FFzWk.png
+    //Set newest 
     new_bi.biHeight = bi.biHeight*factor;
     new_bi.biWidth = bi.biWidth*factor;
     
-        // Padding for original scanlines, values can be 0,1,2,3. 
-    // Needs to still be used, multiple of 4 related to bitmap header and fread
+    //Padding for fseek, multiple of 4
     int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     int new_padding =  (4 - (new_bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     
     //New Image Size
     new_bi.biSizeImage = (new_bi.biWidth *sizeof(RGBTRIPLE) + new_padding) * abs(new_bi.biHeight); 
-    new_bf.bfSize = new_bi.biSizeImage + 54; //54 is the size of BF+BI, not contents just the offset totals and bytes allocated for info
-
-
-
-    //Now we have everything initialized
+    new_bf.bfSize = new_bi.biSizeImage + 54; //54 is BF+BI
     
-    
-    //define a HEAP value temporary variable
-    //RGBTRIPLE *buffer = malloc(sizeof(RGBTRIPLE)*factor);
-
-
+    //open file to write output
     fwrite(&new_bf, sizeof(BITMAPFILEHEADER), 1, outptr);
     fwrite(&new_bi, sizeof(BITMAPINFOHEADER), 1, outptr);
     
 
 
     // iterate over infile's scanlines
-    // per row. Iterate over original files
-for (int i = 0, old_biHeight = abs(bi.biHeight); i < old_biHeight; i++)   //changed to old_biheight to prevent confusion
-{
-    
-    //We're reading the scanline now    
-    //This line reproduces Factor Height times. Its not efficient because we're rereading the same thing factor times
-    for (int l = 0; l<factor; l++)
+    for (int i = 0, old_biHeight = abs(bi.biHeight); i < old_biHeight; i++)   //changed to old_biheight to prevent confusion
     {
         
-        // iterate over pixels in scanline
-        // columns within row
-        for (int j = 0; j < bi.biWidth; j++)
+        //Not efficient, but scans over the same input line for factor*output rows
+        for (int l = 0; l<factor; l++)
         {
-            // temporary storage
-            RGBTRIPLE triple;
-
-            // read RGB triple from infile
-            fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
             
-            //We're reading each element within the row (RGB), but we need to reproduce it multiplied by factor and store it ina new variable
-            for (int r=0; r<factor; r++){
-                fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+            // iterate over pixels in scanline
+            for (int j = 0; j < bi.biWidth; j++)
+            {
+                // temporary storage
+                RGBTRIPLE triple;
+    
+                // read RGB triple from infile
+                fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+                
+                //BGR + BGR + BGR factor # of times on width
+                for (int r=0; r<factor; r++){
+                    fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+                }
             }
 
-
-            // write RGB triple to outfile
-            //fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr); //don't need this going replace
-        }
-
-        // skip over padding, if any
-        //https://www.tutorialspoint.com/c_standard_library/c_function_fseek.htm
-        //Basically, there's always padding in a bitmap file by default due to intel's 4 byte standarization
-        //This reads any leftover padding in bitmap file
-        
-        fseek(inptr, padding, SEEK_CUR);
-
-        // then add it back (to demonstrate how)
-        for (int k = 0; k < new_padding; k++)
-        {
-            fputc(0x00, outptr);
-        }
-        
-        //we need to repeat the input cursor back to original position
-        if (l < factor - 1) 
-        {
-            long offset = bi.biWidth*sizeof(RGBTRIPLE)+padding;
-            fseek(inptr, -offset, SEEK_CUR);  //this shoves cursor back the entire length to start
+            //Input files padding, pass over seeker
+            fseek(inptr, padding, SEEK_CUR);
+    
+            //Add multiple of 4 padding to new image size
+            for (int k = 0; k < new_padding; k++)
+            {
+                fputc(0x00, outptr);
+            }
+            
+            //pushes cursor back and iterate # of factor times on "L" row
+            if (l < factor - 1) 
+            {
+                long offset = bi.biWidth*sizeof(RGBTRIPLE)+padding; //By default, files are unsigned (nonnegative). Need to define negative signed long
+                fseek(inptr, -offset, SEEK_CUR);  //this shoves cursor back the entire length to start
+            }
         }
     }
-}
 
 // close infile
 fclose(inptr);
