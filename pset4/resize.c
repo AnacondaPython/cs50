@@ -78,28 +78,33 @@ int main(int argc, char* argv[])
     new_bf = bf;
     new_bi = bi;
 
-    fwrite(&new_bf, sizeof(BITMAPFILEHEADER), 1, outptr);
-    fwrite(&new_bi, sizeof(BITMAPINFOHEADER), 1, outptr);
-    
 
     
     //Change header values to scale with factor
     //http://i.imgur.com/t4FFzWk.png
     new_bi.biHeight = bi.biHeight*factor;
     new_bi.biWidth = bi.biWidth*factor;
-    new_bi.biSizeImage = new_bi.biWidth * new_bi.biHeight * 3; //3 is size of RGBtriple
-    new_bf.bfSize = new_bi.biSizeImage + 54; //54 is the size of BF+BI, not contents just the offset totals and bytes allocated for info
-
-    // Padding for original scanlines, values can be 0,1,2,3. 
+    
+        // Padding for original scanlines, values can be 0,1,2,3. 
     // Needs to still be used, multiple of 4 related to bitmap header and fread
     int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     int new_padding =  (4 - (new_bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    
+    //New Image Size
+    new_bi.biSizeImage = (new_bi.biWidth *sizeof(RGBTRIPLE) + new_padding) * abs(new_bi.biHeight); 
+    new_bf.bfSize = new_bi.biSizeImage + 54; //54 is the size of BF+BI, not contents just the offset totals and bytes allocated for info
+
+
 
     //Now we have everything initialized
     
     
     //define a HEAP value temporary variable
     //RGBTRIPLE *buffer = malloc(sizeof(RGBTRIPLE)*factor);
+
+
+    fwrite(&new_bf, sizeof(BITMAPFILEHEADER), 1, outptr);
+    fwrite(&new_bi, sizeof(BITMAPINFOHEADER), 1, outptr);
     
 
 
@@ -125,11 +130,8 @@ for (int i = 0, old_biHeight = abs(bi.biHeight); i < old_biHeight; i++)   //chan
             
             //We're reading each element within the row (RGB), but we need to reproduce it multiplied by factor and store it ina new variable
             for (int r=0; r<factor; r++){
-                fwrite(&triple, sizeof(RGBTRIPLE), 1, inptr);
+                fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
             }
-            
-            
-            
 
 
             // write RGB triple to outfile
@@ -147,6 +149,13 @@ for (int i = 0, old_biHeight = abs(bi.biHeight); i < old_biHeight; i++)   //chan
         for (int k = 0; k < new_padding; k++)
         {
             fputc(0x00, outptr);
+        }
+        
+        //we need to repeat the input cursor back to original position
+        if (l < factor - 1) 
+        {
+            long offset = bi.biWidth*sizeof(RGBTRIPLE)+padding;
+            fseek(inptr, -offset, SEEK_CUR);  //this shoves cursor back the entire length to start
         }
     }
 }
