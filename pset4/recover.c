@@ -1,3 +1,4 @@
+
 /**
  * recover.c
  *
@@ -6,77 +7,74 @@
  *
  * Recovers JPEGs from a forensic image.
  */
- 
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
-typedef struct
-{
-    BYTE: jpeg1;
-    BYTE: jpeg2;
-    BYTE: jpeg3;
-    BYTE: jpeg4;
-} __attribute__((__packed__)) 
-JPEGCHK;
+typedef uint8_t  BYTE; 
 
 
 
-int main(int argc, char* argv[])
+int main(void)
 {
     //Open the CF card
     FILE* inptr = fopen("card.raw", "r");
+
+    //check if file is null
+    if (inptr ==NULL)
+    {
+        fclose(inptr);
+        fprintf(stderr, "card.raw file not working \n");
+        return 1;
+    }
+
+    char title[8];
     
+    FILE* img = NULL;
+
     //Initialize variables
-    int* buffer = malloc(512);
-    int fnumber = 0; //numbering files
+    BYTE buffer[512];
+    int fnumber = 0; 
     int searchjpeg = 1; //1 if true, 0 if false
-    char* title;
-    
+
     //Cycle through each 512 MB block
     while(fread(&buffer, 512, 1, inptr)==1){
-        fseek(inptr, -512, SEEK_CUR); //go back 512 paces after first logic check
-        
-        //Read first 4 bytes
-        JPEGCHK j1;
-        fread(&j1, sizeof(JPEGCHK),1, inptr);
-        fseek(inptr, -4, SEEK_CUR);
-        
-        
+
+
         if(searchjpeg==1){ //Start of new jpeg?
-            if(j1.jpeg1 == 0xff && j1.jpeg2 == 0xd8 && j1.jpeg3 == 0xff && j1.jpeg4 == 0xe0) //4 of 16 possible
+            if(buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff && (buffer[3] == 0xe0 || buffer[3] == 0xe1)) //4 of 16 possible
             { //yes
                 searchjpeg = 0;
-                fread(&buffer, 512,1,inptr);
-                
-                sprintf(title, "00%d.jpg", fnumber);
-                FILE* img = fopen(title, "a");
-                fwrite(&buffer, 512, 1, inptr);
+
+                sprintf(title, "%03d.jpg", fnumber);
+                img = fopen(title, "w");
+                fwrite(&buffer, 512, 1, img);
             }
             else
             { //no
-                fseek(inptr,512,1,inptr);
+                printf("nothing\n");
             }
         }
-        
-        
-        
+
+
+
         else{ //already found a jpeg?
-            if(j1.jpeg1 == 0xff && j1.jpeg2 == 0xd8 && j1.jpeg3 == 0xff && j1.jpeg4 == 0xe0)
+            if(buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff && (buffer[3] == 0xe0 || buffer[3] == 0xe1))
             { //yes
-                fclose(title);
+                fclose(img);
                 fnumber++;
-                
-                sprintf(title, "00%d.jpg", fnumber);
-                FILE* img = fopen(title, "a");
-                fwrite(&buffer, 512, 1, inptr);
+
+                sprintf(title, "%03d.jpg", fnumber);
+                img = fopen(title, "w");
+                fwrite(&buffer, 512, 1, img);
             }
             else
             { //no
-                fread(&buffer, 512, 1,inptr);
+                fwrite(&buffer, 512, 1, img);
             }
         }
     }
-    //close last file made
-    fclose(title);
+    fclose(img);
     free(buffer);
 }
